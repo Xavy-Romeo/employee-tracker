@@ -1,9 +1,19 @@
+const db = require('./db/connection');
+
+// Start DB connection
+db.connect(err => {
+    if (err) {
+        throw err;
+    }
+    console.log('Database connected.');
+});
+
 // 1. start by running app - npm start = node index.js
 // 2. prompted with questions - inquirer
 // 3. create constructor classes for departments and employees ???? or for query functions
-// 4. connect to mysql
-// 5. create databases
-// 6. create tables
+// 4. connect to mysql - Complete
+// 5. create databases - Complete
+// 6. create tables - Complete
 // 7. sql queries
 
 
