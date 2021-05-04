@@ -1,11 +1,13 @@
 const db = require('./db/connection');
+const promptUser = require('./utils/inquirer');
 
-// Start DB connection
+// Start DB connection then run inquirer
 db.connect(err => {
     if (err) {
         throw err;
     }
     console.log('Database connected.');
+    promptUser();
 });
 
 // 1. start by running app - npm start = node index.js
