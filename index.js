@@ -1,5 +1,10 @@
 const db = require('./db/connection');
+const startup = require('./utils/startup');
 const promptUser = require('./utils/inquirer');
+
+
+// startup();
+// promptUser();
 
 // Start DB connection then run inquirer
 db.connect(err => {
@@ -7,6 +12,8 @@ db.connect(err => {
         throw err;
     }
     console.log('Database connected.');
+    
+    startup();
     promptUser();
 });
 
