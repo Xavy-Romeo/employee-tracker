@@ -1,6 +1,6 @@
 const db = require('./db/connection');
 const startup = require('./utils/startup');
-const promptUser = require('./utils/inquirer');
+const startPrompts = require('./utils/inquirer');
 
 
 // startup();
@@ -14,7 +14,7 @@ db.connect(err => {
     console.log('Database connected.');
     
     startup();
-    promptUser();
+    setTimeout(startPrompts, 500);
 });
 
 // 1. start by running app - npm start = node index.js
