@@ -31,18 +31,44 @@ const startPrompts = () => {
         }
     ])
     .then(({startMenu}) => {
-             
+        // including employee ids, 
+        // first names, last names, job titles, departments, salaries, and managers that the 
+        // employees report to
         switch (startMenu) {
             case 'View All Employees':
-                db.query('SELECT * FROM employees', (err, rows) => {
-                    console.table(rows);
+                db.query(`SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.dept_name, roles.salary, 
+                    concat(a.last_name, ', ', a.first_name) 
+                    AS manager
+                    FROM employees
+                    LEFT JOIN roles
+                    ON employees.role_id = roles.id
+                    LEFT JOIN departments
+                    ON roles.department_id = departments.id
+                    JOIN employees a
+                    ON employees.manager_id = a.id
+                    `, (err, rows) => {
+                        err
+                            ? console.log(err)
+                            : console.table(rows);
+                    
                     startPrompts();
                 });
                 
                 break;
 
             case 'View All Employees (Alphabetical Last Name)':
-                db.query('SELECT * FROM employees ORDER BY last_name', (err, rows) => {
+                db.query(`SELECT employees.id, employees.last_name, employees.first_name, roles.title, departments.dept_name, roles.salary, 
+                concat(a.last_name, ', ', a.first_name) 
+                AS manager
+                FROM employees
+                LEFT JOIN roles
+                ON employees.role_id = roles.id
+                LEFT JOIN departments
+                ON roles.department_id = departments.id
+                JOIN employees a
+                ON employees.manager_id = a.id
+                ORDER BY employees.last_name
+                `, (err, rows) => {
                     console.table(rows);
                     startPrompts();
                 });
@@ -50,7 +76,18 @@ const startPrompts = () => {
                 break;
 
             case 'View All Employees By Department':
-                db.query('SELECT * FROM employees ORDER BY department_id', (err, rows) => {
+                db.query(`SELECT employees.id, employees.last_name, employees.first_name, roles.title, departments.dept_name, roles.salary, 
+                    concat(a.last_name, ', ', a.first_name) 
+                    AS manager
+                    FROM employees
+                    LEFT JOIN roles
+                    ON employees.role_id = roles.id
+                    LEFT JOIN departments
+                    ON roles.department_id = departments.id
+                    JOIN employees a
+                    ON employees.manager_id = a.id
+                    ORDER BY departments.dept_name
+                    `, (err, rows) => {
                     console.table(rows);
                     startPrompts();
                 });
@@ -58,10 +95,17 @@ const startPrompts = () => {
                 break;
 
             case 'View All Employees By Manager':
-                db.query(`
-                    SELECT * 
-                    FROM employees 
-                    ORDER BY manager_id, last_name
+                db.query(`SELECT employees.id, employees.last_name, employees.first_name, roles.title, departments.dept_name, roles.salary, 
+                    concat(a.last_name, ', ', a.first_name) 
+                    AS manager
+                    FROM employees
+                    LEFT JOIN roles
+                    ON employees.role_id = roles.id
+                    LEFT JOIN departments
+                    ON roles.department_id = departments.id
+                    JOIN employees a
+                    ON employees.manager_id = a.id 
+                    ORDER BY employees.manager_id, employees.last_name
                     `, 
                     (err, rows) => {
                         console.table(rows)
@@ -72,16 +116,26 @@ const startPrompts = () => {
                 break;
             
             case 'View All Roles':
-                db.query(`SELECT * FROM roles`, (err, rows) => {
-                        console.table(rows)
-                        startPrompts();
+                db.query(`SELECT roles.id, roles.title, roles.salary, departments.dept_name
+                    FROM roles
+                    LEFT JOIN departments
+                    ON roles.department_id = departments.id
+                    `, (err, rows) => {
+                                     
+                    console.table(rows);
+                    startPrompts();
                 });
                 
                 break;
             
             case 'View All Roles (By Department)':
-                db.query(`SELECT * FROM roles ORDER BY department_id`, (err, rows) => {
-                    console.table(rows)
+                db.query(`SELECT roles.id, roles.title, roles.salary, departments.dept_name
+                    FROM roles
+                    LEFT JOIN departments
+                    ON roles.department_id = departments.id 
+                    ORDER BY department_id`, (err, rows) => {
+                    
+                    console.table(rows);
                     startPrompts();
                 });
 
@@ -126,7 +180,7 @@ const startPrompts = () => {
                     last = JSON.stringify(lastName);
                 })
                 .then(()=>{
-                    db.query(`SELECT * FROM roles`, (err, rows) => {
+                    db.query(`SELECT roles.id, roles.title FROM roles`, (err, rows) => {
                         console.table(rows);
 
                         console.log(`
@@ -151,13 +205,18 @@ const startPrompts = () => {
                     console.log(role)
                 })    
                 .then(() => {
-                    db.query(`SELECT * FROM employees ORDER BY last_name`, (err, rows) => {
+                    db.query(`SELECT employees.id,
+                        concat(employees.last_name, ', ', employees.last_name)
+                        AS employee_name
+                        FROM employees 
+                        ORDER BY employees.last_name
+                        `, (err, rows) => {
                         console.table(rows);
 
                         console.log(`
-                                ==============================================================
-                                                    REFERENCE TABLE ABOVE
-                                ==============================================================
+                                ======================================================
+                                               REFERENCE TABLE ABOVE
+                                ======================================================
                                 Who is the new employee's manager? (Enter manager's id number)
                         `);
                     });
@@ -180,15 +239,15 @@ const startPrompts = () => {
                     `, (err, result) => {
                         err
                             ? console.log(`
-                                    ======================================================
-                                    INCORRECT ID NUMBERS WERE ENTERED. PLEASE START AGAIN.
-                                    ======================================================
+                                ======================================================
+                                INCORRECT ID NUMBERS WERE ENTERED. PLEASE START AGAIN.
+                                ======================================================
                             `)
                         
                             : console.log(`
-                                    ======================================================
-                                                ${first} ${last} WAS ADDED!
-                                    ======================================================
+                                ======================================================
+                                            ${first} ${last} WAS ADDED!
+                                ======================================================
                             `);
                         
                         startPrompts();
@@ -332,7 +391,12 @@ const startPrompts = () => {
                         `); 
                 })
                 .then(() => {
-                    db.query(`SELECT * FROM employees`, (err, rows) => {
+                    db.query(`SELECT employees.id,
+                        concat(employees.last_name, ', ', employees.last_name)
+                        AS employee_name
+                        FROM employees 
+                        ORDER BY employees.last_name
+                        `, (err, rows) => {
                         console.table(rows);
                     
                         console.log(`
@@ -396,7 +460,7 @@ const startPrompts = () => {
                         `); 
                 })
                 .then(() => {
-                    db.query(`SELECT * FROM roles`, (err, rows) => {
+                    db.query(`SELECT roles.id, roles.title FROM roles`, (err, rows) => {
                         console.table(rows);
                     
                         console.log(`
@@ -462,7 +526,12 @@ const startPrompts = () => {
                                 ======================================================
                         `); 
 
-                    db.query(`SELECT * FROM employees`, (err, rows) => {
+                    db.query(`SELECT employees.id,
+                        concat(employees.last_name, ', ', employees.last_name)
+                        AS employee_name
+                        FROM employees 
+                        ORDER BY employees.last_name
+                        `, (err, rows) => {
                         console.table(rows);
                     
                         console.log(`
@@ -485,7 +554,7 @@ const startPrompts = () => {
                 .then(({updEmpRole}) => {
                     empId = parseInt(updEmpRole);
 
-                    db.query(`SELECT * FROM roles`, (err, rows) => {
+                    db.query(`SELECT roles.id, roles.title FROM roles`, (err, rows) => {
                         console.table(rows);
                     
                         console.log(`
@@ -553,7 +622,12 @@ const startPrompts = () => {
                         `); 
                 })
                 .then(() => {
-                    db.query(`SELECT * FROM employees`, (err, rows) => {
+                    db.query(`SELECT employees.id,
+                        concat(employees.last_name, ', ', employees.last_name)
+                        AS employee_name
+                        FROM employees 
+                        ORDER BY employees.last_name
+                        `, (err, rows) => {
                         console.table(rows);
                     
                         console.log(`
@@ -576,7 +650,12 @@ const startPrompts = () => {
                 .then(({updEmpMgr}) => {
                     idEmp = parseInt(updEmpMgr);
 
-                    db.query(`SELECT * FROM employees`, (err, rows) => {
+                    db.query(`SELECT employees.id,
+                        concat(employees.last_name, ', ', employees.last_name)
+                        AS employee_name
+                        FROM employees 
+                        ORDER BY employees.last_name
+                        `, (err, rows) => {
                         console.table(rows);
                     
                         console.log(`
