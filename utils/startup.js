@@ -1,3 +1,4 @@
+// function displays logo on app startup
 const startup = () => {
     console.log(`
     _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _  
@@ -19,4 +20,5 @@ const startup = () => {
     `);
 };
 
+// exporting logo
 module.exports = startup;

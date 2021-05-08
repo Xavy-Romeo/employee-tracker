@@ -1,24 +1,29 @@
+// requiring dependancies
 const {prompt} = require('inquirer');
 const cTable = require('console.table');
 
+// requiring database connection
 const db = require('../db/connection');
 
+// requiring validation functions
 const { validateName, validateId, validateSalary } = require('./validations');
 
+// function starts app's Start Menu
 const startPrompts = () => {
     return prompt([
+        // Prompts Start Menu options 
         {
             name: 'startMenu',
             type: 'list',
             message: 'Employee Manager: Please choose one of the following.',
             choices: [
-                'View All Employees', 
-                'View All Employees (Alphabetical Last Name)',
-                'View All Employees By Department',
-                'View All Employees By Manager',
-                'View All Roles',
+                'View All Employees (By ID)', 
+                'View All Employees (By Alphabetical Last Name)',
+                'View All Employees (By Department)',
+                'View All Employees (By Manager)',
+                'View All Roles (By ID)',
                 'View All Roles (By Department)',
-                'View All Departments',
+                'View All Departments (By ID)',
                 'Add Employee',
                 'Add Role',
                 'Add Department',
@@ -30,12 +35,14 @@ const startPrompts = () => {
             ]
         }
     ])
+    // takes in User choice
     .then(({startMenu}) => {
-        // including employee ids, 
-        // first names, last names, job titles, departments, salaries, and managers that the 
-        // employees report to
+        // switch statement for each potential user choice
         switch (startMenu) {
-            case 'View All Employees':
+            
+            // 'View All Employees (By ID)' case 
+            case 'View All Employees (By ID)':
+                // MySQL query to show * Employees 
                 db.query(`SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.dept_name, roles.salary, 
                     concat(a.last_name, ', ', a.first_name) 
                     AS manager
@@ -48,34 +55,44 @@ const startPrompts = () => {
                     ON employees.manager_id = a.id
                     `, (err, rows) => {
                         err
+                            // if error console.log(err)                        
                             ? console.log(err)
+                            // else display table with query results
                             : console.table(rows);
                     
-                    startPrompts();
-                });
+                        // function sends user back to Start Menu
+                        startPrompts();
+                    }
+                );
                 
                 break;
 
-            case 'View All Employees (Alphabetical Last Name)':
+            // 'View All Employees (Alphabetical Last Name)' case    
+            case 'View All Employees (By Alphabetical Last Name)':
                 db.query(`SELECT employees.id, employees.last_name, employees.first_name, roles.title, departments.dept_name, roles.salary, 
-                concat(a.last_name, ', ', a.first_name) 
-                AS manager
-                FROM employees
-                LEFT JOIN roles
-                ON employees.role_id = roles.id
-                LEFT JOIN departments
-                ON roles.department_id = departments.id
-                JOIN employees a
-                ON employees.manager_id = a.id
-                ORDER BY employees.last_name
-                `, (err, rows) => {
-                    console.table(rows);
-                    startPrompts();
-                });
+                    concat(a.last_name, ', ', a.first_name) 
+                    AS manager
+                    FROM employees
+                    LEFT JOIN roles
+                    ON employees.role_id = roles.id
+                    LEFT JOIN departments
+                    ON roles.department_id = departments.id
+                    JOIN employees a
+                    ON employees.manager_id = a.id
+                    ORDER BY employees.last_name
+                    `, (err, rows) => {
+                        err                     
+                                ? console.log(err)
+                                : console.table(rows);
+
+                        startPrompts();
+                    }
+                );
 
                 break;
-
-            case 'View All Employees By Department':
+            
+            // 'View All Employees (By Department)' case    
+            case 'View All Employees (By Department)':
                 db.query(`SELECT employees.id, employees.last_name, employees.first_name, roles.title, departments.dept_name, roles.salary, 
                     concat(a.last_name, ', ', a.first_name) 
                     AS manager
@@ -88,13 +105,18 @@ const startPrompts = () => {
                     ON employees.manager_id = a.id
                     ORDER BY departments.dept_name
                     `, (err, rows) => {
-                    console.table(rows);
-                    startPrompts();
-                });
+                        err                     
+                        ? console.log(err)
+                        : console.table(rows);
+
+                        startPrompts();
+                    }
+                );
 
                 break;
-
-            case 'View All Employees By Manager':
+            
+            // 'View All Employees (By Manager)' case 
+            case 'View All Employees (By Manager)':
                 db.query(`SELECT employees.id, employees.last_name, employees.first_name, roles.title, departments.dept_name, roles.salary, 
                     concat(a.last_name, ', ', a.first_name) 
                     AS manager
@@ -106,61 +128,82 @@ const startPrompts = () => {
                     JOIN employees a
                     ON employees.manager_id = a.id 
                     ORDER BY employees.manager_id, employees.last_name
-                    `, 
-                    (err, rows) => {
-                        console.table(rows)
+                    `, (err, rows) => {
+                        err                     
+                            ? console.log(err)
+                            : console.table(rows);
+
                         startPrompts();
                     }
                 ); 
 
                 break;
             
-            case 'View All Roles':
+            // 'View All Roles (By ID)' case
+            case 'View All Roles (By ID)':
                 db.query(`SELECT roles.id, roles.title, roles.salary, departments.dept_name
                     FROM roles
                     LEFT JOIN departments
                     ON roles.department_id = departments.id
                     `, (err, rows) => {
-                                     
-                    console.table(rows);
-                    startPrompts();
-                });
+                        err                     
+                        ? console.log(err)
+                        : console.table(rows);
+
+                        startPrompts();
+                    }
+                );
                 
                 break;
             
+            // 'View All Roles (By Department)' case
             case 'View All Roles (By Department)':
                 db.query(`SELECT roles.id, roles.title, roles.salary, departments.dept_name
                     FROM roles
                     LEFT JOIN departments
                     ON roles.department_id = departments.id 
-                    ORDER BY department_id`, (err, rows) => {
-                    
-                    console.table(rows);
-                    startPrompts();
-                });
+                    ORDER BY department_id
+                    `, (err, rows) => {
+                        err                     
+                        ? console.log(err)
+                        : console.table(rows);
+
+                        startPrompts();
+                    }
+                );
 
                 break;
             
-            case 'View All Departments':
-                db.query(`SELECT * FROM departments`, (err, rows) => {
-                    console.table(rows)
-                    startPrompts();
-                });
+            // 'View All Departments (By ID)' case
+            case 'View All Departments (By ID)':
+                db.query(`SELECT * 
+                    FROM departments
+                    `, (err, rows) => {
+                        err                     
+                        ? console.log(err)
+                        : console.table(rows);
+
+                        startPrompts();
+                    }
+                );
 
                 break;
             
+            // 'Add Employee' case
             case 'Add Employee':
                 console.log(`
                                 ======================================================
                                                    ADDING EMPLOYEE
                                 ======================================================
                 `);
-
+                
+                // declaring variables
                 let first;
                 let last;
                 let role;
                 let manager;
-
+                
+                // prompts user for employee's first and last names
                 return prompt([
                     {
                        name: 'firstName',
@@ -180,7 +223,10 @@ const startPrompts = () => {
                     last = JSON.stringify(lastName);
                 })
                 .then(()=>{
-                    db.query(`SELECT roles.id, roles.title FROM roles`, (err, rows) => {
+                    db.query(`
+                        SELECT roles.id, roles.title 
+                        FROM roles
+                        `, (err, rows) => {
                         console.table(rows);
 
                         console.log(`
@@ -233,6 +279,7 @@ const startPrompts = () => {
                 .then(({empManager}) => {
                     manager = parseInt(empManager);
 
+                    // MySQL query to add employee to employees table based on user input
                     db.query(`
                     INSERT INTO employees (first_name, last_name, role_id, manager_id)
                     VALUES (${first}, ${last}, ${role}, ${manager})
@@ -256,6 +303,7 @@ const startPrompts = () => {
 
                 break;
             
+            // 'Add Role' case
             case 'Add Role':
                 console.log(`
                                 ======================================================
@@ -330,7 +378,8 @@ const startPrompts = () => {
                 });
     
                 break;
-
+            
+            // 'Add Department' case
             case 'Add Department':
                 console.log(`
                                 ======================================================
@@ -373,6 +422,7 @@ const startPrompts = () => {
 
                 break;
 
+            // 'Remove Employee' case
             case 'Remove Employee':
                 prompt([
                     {
@@ -441,7 +491,8 @@ const startPrompts = () => {
                 });
              
                 break;
-    
+            
+            // 'Remove Role' case
             case 'Remove Role':
                 prompt([
                     {
@@ -506,6 +557,7 @@ const startPrompts = () => {
             
                 break;
 
+            // 'Update Employee Role' case
             case 'Update Employee Role':
                 let empId;
                 let roleId;
@@ -601,6 +653,7 @@ const startPrompts = () => {
             
                 break;
 
+            // 'Update Employee Manager' case
             case 'Update Employee Manager':      
                 let idEmp;
                 let idMgr;
@@ -702,8 +755,11 @@ const startPrompts = () => {
             
                 break;
             
+            // 'Exit' case
             case 'Exit':
                 console.log('GOOD BYE!');
+                
+                // end database connection and exit app
                 db.end();
                 break;
                         

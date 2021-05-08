@@ -1,3 +1,4 @@
+-- Inserting values into departments table
 INSERT INTO departments (dept_name)
 VALUES 
     ('All Store'),
@@ -12,6 +13,7 @@ VALUES
     ('Grocery'),
     ('Office Supplies');
 
+-- Inserting values into roles table
 INSERT INTO roles (title, salary, department_id) 
 VALUES
     ('Store Manager', '150000', 1),         
@@ -48,7 +50,8 @@ VALUES
     ('Associate - Sports', '25000', 9),
     ('Associate - Grocery', '25000', 10),
     ('Associate - Office', '25000', 11);
-    
+
+-- Inserting values into employees table
 INSERT INTO employees (first_name, last_name, role_id, manager_id)
 VALUES 
     ('Javier', 'Vazquez', 1, NULL),
