@@ -1,6 +1,6 @@
 const db = require('./db/connection');
 const startup = require('./utils/startup');
-const startPrompts = require('./utils/inquirer');
+const startPrompts = require('./utils/start_menu');
 
 
 // startup();
