@@ -24,11 +24,13 @@ const startPrompts = () => {
                 'View All Roles (By ID)',
                 'View All Roles (By Department)',
                 'View All Departments (By ID)',
+                'View Utilized Budget (By Department)',
                 'Add Employee',
                 'Add Role',
                 'Add Department',
                 'Remove Employee',
                 'Remove Role',
+                'Remove Department',
                 'Update Employee Role',
                 'Update Employee Manager',
                 'Exit'
@@ -177,7 +179,7 @@ const startPrompts = () => {
             // 'View All Departments (By ID)' case
             case 'View All Departments (By ID)':
                 db.query(`SELECT * 
-                    FROM departments
+                    FROM departments   
                     `, (err, rows) => {
                         err                     
                         ? console.log(err)
@@ -189,6 +191,26 @@ const startPrompts = () => {
 
                 break;
             
+            // 'View Utilized Budget (By Department)' case
+            case 'View Utilized Budget (By Department)':
+                db.query (`SELECT SUM(roles.salary) AS salary, departments.dept_name
+                    FROM employees 
+                    LEFT JOIN roles  
+                    ON employees.role_id = roles.id 
+                    LEFT JOIN departments 
+                    ON roles.department_id = departments.id
+                    GROUP BY departments.id
+                    `,(err, rows) => {
+                        err                     
+                        ? console.log(err)
+                        : console.table(rows);
+
+                        startPrompts();
+                    }
+                );
+                
+                break;
+
             // 'Add Employee' case
             case 'Add Employee':
                 console.log(`
@@ -548,6 +570,71 @@ const startPrompts = () => {
                                 : console.log(`
                                 ======================================================
                                             ROLE ${id} HAS BEEN REMOVED!
+                                ======================================================
+                                `);
+                            
+                            startPrompts();
+                        });
+                });
+            
+                break;
+
+            // 'Remove Department' case
+            case 'Remove Department':
+                prompt([
+                    {
+                        name: 'confirmRmvDept',
+                        type: 'confirm',
+                        message: 'Are you sure you want to remove a department from the database?'
+                    }
+                ])
+                .then(({confirmRmvDept}) => {
+                    !confirmRmvDept 
+                        ? startPrompts()
+                        : console.log(`
+                                ======================================================
+                                                REMOVING DEPARTMENT
+                                ======================================================
+                        `); 
+                })
+                .then(() => {
+                    db.query(`SELECT * FROM departments`, (err, rows) => {
+                        console.table(rows);
+                    
+                        console.log(`
+                                ======================================================
+                                                REFERENCE TABLE ABOVE
+                                ======================================================
+                                             (Enter department id number)
+                        `);                                                           
+                    });
+
+                    return prompt([
+                        {
+                            name: 'rmvDept',
+                            type: 'input',
+                            message: 'Which department would you like to remove? (Enter department id number)',
+                            validate: rmvDeptInput => validateId(rmvDeptInput)
+                        }
+                    ]);
+                })
+                .then(({rmvDept}) => {
+                    let id = parseInt(rmvDept);
+
+                    db.query(`
+                        DELETE FROM departments 
+                        WHERE id = ${id} 
+                        `, (err, result) => {
+                            err
+                                ? console.log(`
+                                ======================================================
+                                INCORRECT ID NUMBERS WERE ENTERED. PLEASE START AGAIN.
+                                ======================================================
+                                `)
+                            
+                                : console.log(`
+                                ======================================================
+                                          DEPARTMENT ${id} HAS BEEN REMOVED!
                                 ======================================================
                                 `);
                             
