@@ -274,7 +274,7 @@ const startPrompts = () => {
                 })    
                 .then(() => {
                     db.query(`SELECT employees.id,
-                        concat(employees.last_name, ', ', employees.last_name)
+                        concat(employees.last_name, ', ', employees.first_name)
                         AS employee_name
                         FROM employees 
                         ORDER BY employees.last_name
@@ -464,7 +464,7 @@ const startPrompts = () => {
                 })
                 .then(() => {
                     db.query(`SELECT employees.id,
-                        concat(employees.last_name, ', ', employees.last_name)
+                        concat(employees.last_name, ', ', employees.first_name)
                         AS employee_name
                         FROM employees 
                         ORDER BY employees.last_name
@@ -666,7 +666,7 @@ const startPrompts = () => {
                         `); 
 
                     db.query(`SELECT employees.id,
-                        concat(employees.last_name, ', ', employees.last_name)
+                        concat(employees.last_name, ', ', employees.first_name)
                         AS employee_name
                         FROM employees 
                         ORDER BY employees.last_name
@@ -763,7 +763,7 @@ const startPrompts = () => {
                 })
                 .then(() => {
                     db.query(`SELECT employees.id,
-                        concat(employees.last_name, ', ', employees.last_name)
+                        concat(employees.last_name, ', ', employees.first_name)
                         AS employee_name
                         FROM employees 
                         ORDER BY employees.last_name
@@ -791,7 +791,7 @@ const startPrompts = () => {
                     idEmp = parseInt(updEmpMgr);
 
                     db.query(`SELECT employees.id,
-                        concat(employees.last_name, ', ', employees.last_name)
+                        concat(employees.last_name, ', ', employees.first_name)
                         AS employee_name
                         FROM employees 
                         ORDER BY employees.last_name
